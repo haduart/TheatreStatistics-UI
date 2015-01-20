@@ -10,6 +10,14 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
   padding: 0.2em 0;
 }
 
+.bar {
+  display: inline-block;
+  width: 20px;
+  height: 75px;
+  margin-right: 2px;
+  fill: teal;
+}
+
 /* Space out content a bit */
 body {
   padding-top: 20px;

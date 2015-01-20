@@ -2,13 +2,13 @@
 
 /**
  * @ngdoc function
- * @name theatreStatisticsApp.controller:MainCtrl
+ * @name theatreStatisticsApp.controller:SettingsCtrl
  * @description
- * # MainCtrl
+ * # SettingsCtrl
  * Controller of the theatreStatisticsApp
  */
 angular.module('theatreStatisticsApp')
-  .controller('MainCtrl', function ($scope) {
+  .controller('SettingsCtrl', function ($scope) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
