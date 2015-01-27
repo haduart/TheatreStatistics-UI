@@ -10,29 +10,12 @@
 angular.module('theatreStatisticsApp')
   .controller('StackedLayoutControllerCtrl', function ($scope) {
 
-    var axisText = "Vendes 2014";
-
-    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    var margin = {top: 60, right: 20, bottom: 30, left: 40},
       width = 700 - margin.left - margin.right,
       height = 300 - margin.top - margin.bottom;
 
-    var x = d3.scale.ordinal()
-      .rangeRoundBands([0, width], .1);
-
-    var y = d3.scale.linear()
-      .rangeRound([height, 0]);
-
     var color = d3.scale.ordinal()
-      .range(["#6b486b", "#a05d56", "#d0743c"]);
-
-    var xAxis = d3.svg.axis()
-      .scale(x)
-      .orient("bottom");
-
-    var yAxis = d3.svg.axis()
-      .scale(y)
-      .orient("left")
-      .tickFormat(d3.format(".2s"));
+      .range(["white", "#E0E0E0", "#CCEBFF"]);
 
     var svg = d3.select("#chartArea").append("svg")
       .attr("width", width + margin.left + margin.right)
@@ -40,107 +23,139 @@ angular.module('theatreStatisticsApp')
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var headers = {state: ["Sala Cafe Teatre","Sala del Mig","Sala Xavier Fabregas"]};
     var dataset = [
-      ["Gener", 4000,5000,7000],
-      ["Febrer",3000,3500,5000],
-      ["Març",2900,3200,5900],
-      ["Abril",3200,3500,7000],
-      ["Maig",3000,4000,6100],
-      ["Juny",3500,4800,6500],
-      ["Juliol",2000,3000,5000],
-      ["Agost",2800,3400,5300],
-      ["Sept.",2000,3000,5500],
-      ["Octubre",3000,4500,6700],
-      ["Novem.",4200,5200,6500],
-      ["Decem.",3500,4350,6700]];
+      {"season": "Gener", "Sala Cafe Teatre": 4000, "Sala del Mig": 5000, "Sala Xavier Fabregas": 7000},
+      {"season": "Febrer", "Sala Cafe Teatre": 3000, "Sala del Mig": 3500, "Sala Xavier Fabregas": 5000},
+      {"season": "Març", "Sala Cafe Teatre": 2900, "Sala del Mig": 3200, "Sala Xavier Fabregas": 5900},
+      {"season": "Abril", "Sala Cafe Teatre": 3200, "Sala del Mig": 3500, "Sala Xavier Fabregas": 7000},
+      {"season": "Maig", "Sala Cafe Teatre": 3000, "Sala del Mig": 4000, "Sala Xavier Fabregas": 6100},
+      {"season": "Juny", "Sala Cafe Teatre": 3500, "Sala del Mig": 4800, "Sala Xavier Fabregas": 6500},
+      {"season": "Juliol", "Sala Cafe Teatre": 2000, "Sala del Mig": 3000, "Sala Xavier Fabregas": 5000},
+      {"season": "Agost", "Sala Cafe Teatre": 2800, "Sala del Mig": 3400, "Sala Xavier Fabregas": 5300},
+      {"season": "Sept.", "Sala Cafe Teatre": 2000, "Sala del Mig": 3000, "Sala Xavier Fabregas": 5500},
+      {"season": "Octubre", "Sala Cafe Teatre": 3000, "Sala del Mig": 4500, "Sala Xavier Fabregas": 6700},
+      {"season": "Novem.", "Sala Cafe Teatre": 4200, "Sala del Mig": 5200, "Sala Xavier Fabregas": 6500},
+      {"season": "Decem.", "Sala Cafe Teatre": 3500, "Sala del Mig": 4350, "Sala Xavier Fabregas": 6700}];
 
-    d3.csv("/data/data-2014.csv", function (error, data) {
+    var seasonNames = dataset.map(function (d) {
+      return d.season;
+    });
 
-      color.domain(d3.keys(data[0]).filter(function (key) {
-        return key !== "State";
-      }));
-
-      data.forEach(function (d) {
-        var y0 = 0;
-        d.ages = color.domain().map(function (name) {
-          return {name: name, y0: y0, y1: y0 += +d[name]};
-        });
-        d.total = d.ages[d.ages.length - 1].y1;
+    var salesNames = d3.keys(dataset[0])
+      .filter(function (key) {
+        return key !== "season";
       });
 
-      //data.sort(function(a, b) { return b.total - a.total; });
-
-      x.domain(data.map(function (d) {
-        return d.State;
-      }));
-      y.domain([0, d3.max(data, function (d) {
-        return d.total;
-      })]);
-
-      svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
-
-      var state = svg.selectAll(".state")
-        .data(data)
-        .enter().append("g")
-        .attr("class", "g")
-        .attr("transform", function (d) {
-          return "translate(" + x(d.State) + ",0)";
-        });
-
-      state.selectAll("rect")
-        .data(function (d) {
-          return d.ages;
-        })
-        .enter().append("rect")
-        .attr("width", x.rangeBand())
-        .attr("y", function (d) {
-          return y(d.y1);
-        })
-        .attr("height", function (d) {
-          return y(d.y0) - y(d.y1);
-        })
-        .style("fill", function (d) {
-          return color(d.name);
-        });
-
-      svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis)
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .text(axisText);
-
-      var legend = svg.selectAll(".legend")
-        .data(color.domain().slice().reverse())
-        .enter().append("g")
-        .attr("class", "legend")
-        .attr("transform", function (d, i) {
-          return "translate(0," + i * 20 + ")";
-        });
-
-      legend.append("rect")
-        .attr("x", width - 18)
-        .attr("width", 18)
-        .attr("height", 18)
-        .style("fill", color);
-
-      legend.append("text")
-        .attr("x", width - 24)
-        .attr("y", 9)
-        .attr("dy", ".35em")
-        .style("text-anchor", "end")
-        .text(function (d) {
-          return d;
-        });
-
+    dataset.forEach(function (d) {
+      d.totalPerSala = salesNames.map(function (name) {
+        return {
+          "salaName": name,
+          "totalCount": d[name]
+        };
+      });
+      d.totalSales = d3.sum(d.totalPerSala, function (d) {
+        return d.totalCount;
+      });
     });
+
+    color.domain(salesNames);
+
+    var x = d3.scale.ordinal()
+      .domain(seasonNames)
+      .rangeBands([0, width], 0.1);
+
+    //var y = d3.scale.linear()
+    //  .rangeRound([height, 0])
+    //  .domain([0, d3.max(dataset, function (d) {
+    //    return d.totalSales;
+    //  })]);
+
+    var y = d3.scale.linear()
+      .domain([0, d3.max(dataset, function (d) {
+        return d.totalSales;
+      })])
+      .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom");
+    var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left")
+      .tickFormat(d3.format(".2s"));
+
+    svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+    svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+
+    var layers = salesNames.map(function (salaName) {
+      return dataset.map(function (d) {
+        return {
+          "x": x(d.season),
+          "y": d[salaName],
+          "salaName": salaName
+        };
+      });
+    });
+
+    var stack = d3.layout.stack();
+    stack(layers);
+
+    var svgLayer = svg.selectAll(".layer")
+      .data(layers)
+      .enter()
+      .append("g")
+      .attr("class", "layer");
+
+    var rect = svgLayer.selectAll("rect")
+      .data(function (d) {
+        return d;
+      })
+      .enter()
+      .append("rect")
+      .attr("x", function (d) {
+        return d.x;
+      })
+      .attr("y", function (d) {
+        return y(d.y + d.y0);
+      })
+      .attr("width", x.rangeBand())
+      .attr("height", function (d, i) {
+        return height - y(d.y);
+      })
+      .style("fill", function (d, i) {
+        return color(d.salaName);
+      });
+
+    var legend = d3.select("svg")
+      .selectAll(".legend")
+      .data(color.domain().slice().reverse())
+      .enter()
+      .append("g")
+      .attr("class", "legend")
+      .attr("transform", function (d, i) {
+        return "translate(0," + i * 20 + ")";
+      });
+
+    legend.append("rect")
+      .attr("x", width + margin.left - 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color);
+
+    legend.append("text")
+      .attr("x", width + margin.left - 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function (d) {
+        return d;
+      });
 
     $scope.update = function () {
       console.log("hola soy edu");
