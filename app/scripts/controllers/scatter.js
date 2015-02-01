@@ -2,11 +2,11 @@
 
 /**
  * @ngdoc function
- * @name theatreStatisticsApp.controller:ChartCtrl
+ * @name theatreStatisticsApp.controller:ScatterCtrl
  * @description
- * # ChartCtrl
+ * # ScatterCtrl
  * Controller of the theatreStatisticsApp
  */
 angular.module('theatreStatisticsApp')
-  .controller('ChartCtrl', function ($scope) {
+  .controller('ScatterCtrl', function ($scope) {
   });
